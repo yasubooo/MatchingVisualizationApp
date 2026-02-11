@@ -67,6 +67,15 @@
             transform: scale(0.98);
             box-shadow: 0 5px 15px rgba(255, 107, 157, 0.3);
         }
+
+        .image-container img {
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .image-container img:active {
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
@@ -80,6 +89,10 @@
         </div>
 
         <button class="button" onclick="goToResult()">結果を確認する</button>
+
+        <div class="image-container">
+            <img id="resultImage" src="hamada_kekkahappyou.png" alt="結果発表" style="max-width: 100%; margin-top: 20px; border-radius: 10px;">
+        </div>
     </div>
 
     <script>
@@ -87,6 +100,12 @@
             // 結果画面に遷移
             window.location.href = 'finalresult.html';
         }
+
+        // 画像をタップしたときに音声を再生
+        document.getElementById('resultImage').addEventListener('click', function() {
+            const audio = new Audio('hamada_kekkahappyou.m4a');
+            audio.play();
+        });
     </script>
 </body>
 </html>
