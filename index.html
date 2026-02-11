@@ -416,17 +416,126 @@
         .theme-form-group.show {
             display: block;
         }
+
+        .mode-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .mode-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .mode-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .mode-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px;
+            background: white;
+            border: 2px solid #ffe4e1;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mode-option:active {
+            background: #fff5f8;
+            transform: scale(0.98);
+        }
+
+        .mode-option input[type="radio"] {
+            margin-top: 3px;
+            flex-shrink: 0;
+        }
+
+        .mode-option.selected {
+            background: #fff5f8;
+            border-color: #ff6b9d;
+            box-shadow: 0 2px 8px rgba(255, 107, 157, 0.2);
+        }
+
+        .mode-label-text {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .mode-label-title {
+            font-weight: bold;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .mode-label-desc {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .mode-toggle-btn {
+            display: inline-block;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px;
+            margin-left: 8px;
+            transition: transform 0.2s;
+        }
+
+        .mode-toggle-btn:active {
+            transform: scale(1.2);
+        }
+
+        .mode-form-group {
+            display: none;
+        }
+
+        .mode-form-group.show {
+            display: block;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1 class="title">今夜神回成立</h1>
         <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 30px;">
-            <p class="subtitle" style="margin-bottom: 0;">運命の出会いを探そう！</p>
             <button type="button" class="theme-toggle-btn" id="themeToggleBtn" title="テーマ選択を開く">🎨</button>
+            <p class="subtitle" style="margin-bottom: 0;">運命の出会いを探そう！</p>
+            <button type="button" class="mode-toggle-btn" id="modeToggleBtn" title="モード選択を開く">🎉</button>
         </div>
 
         <form id="userForm" class="form-section">
+            <div class="mode-section mode-form-group" id="modeFormGroup">
+                <div class="mode-title">投票のモードを選択</div>
+                <div class="mode-options" id="modeOptions">
+                    <label class="mode-option" id="modeOption1">
+                        <input type="radio" name="mode" value="random">
+                        <div class="mode-label-text">
+                            <span class="mode-label-title">R</span>
+                        </div>
+                    </label>
+                    <label class="mode-option selected" id="modeOption2">
+                        <input type="radio" name="mode" value="gender" checked>
+                        <div class="mode-label-text">
+                            <span class="mode-label-title">G</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
             <div class="form-group theme-form-group" id="themeFormGroup">
                 <label>テーマを選択</label>
                 <div class="select-display-row">
@@ -502,9 +611,14 @@
     <script>
         let usersList = [];
         let selectedTheme = '';
+        let selectedMode = 'gender'; // デフォルトはジェンダーモード
         let isSpinning = false;
 
         const userForm = document.getElementById('userForm');
+        const modeToggleBtn = document.getElementById('modeToggleBtn');
+        const modeFormGroup = document.getElementById('modeFormGroup');
+        const modeOptions = document.querySelectorAll('input[name="mode"]');
+        const modeOptionLabels = document.querySelectorAll('.mode-option');
         const themeToggleBtn = document.getElementById('themeToggleBtn');
         const themeFormGroup = document.getElementById('themeFormGroup');
         const themeSelect = document.getElementById('theme');
@@ -532,6 +646,38 @@
         };
 
         const themeKeys = Object.keys(themes);
+
+        // モードトグルボタン（隠しコマンド）
+        modeToggleBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            modeFormGroup.classList.toggle('show');
+        });
+
+        // モード選択
+        modeOptions.forEach((radio, index) => {
+            radio.addEventListener('change', function() {
+                selectedMode = this.value;
+                // ビジュアル更新
+                modeOptionLabels.forEach((label, idx) => {
+                    if (idx === index) {
+                        label.classList.add('selected');
+                    } else {
+                        label.classList.remove('selected');
+                    }
+                });
+            });
+        });
+
+        // モードオプションラベルをクリック可能に
+        modeOptionLabels.forEach((label, index) => {
+            label.addEventListener('click', function(e) {
+                if (e.target.tagName !== 'INPUT') {
+                    const radio = this.querySelector('input[type="radio"]');
+                    radio.checked = true;
+                    radio.dispatchEvent(new Event('change'));
+                }
+            });
+        });
 
         // テーマトグルボタン（隠しコマンド）
         themeToggleBtn.addEventListener('click', function(e) {
@@ -720,8 +866,24 @@
 
         // スタートボタン
         startBtn.addEventListener('click', function() {
-            // シャッフルして順番をランダムに
-            const shuffledList = usersList.sort(() => Math.random() - 0.5);
+            let shuffledList;
+
+            // モードに応じて投票順序を決定
+            if (selectedMode === 'gender') {
+                // 女性とそれ以外に分割
+                const females = usersList.filter(user => user.gender === 'female');
+                const males = usersList.filter(user => user.gender === 'male');
+                
+                // 各グループをシャッフル
+                females.sort(() => Math.random() - 0.5);
+                males.sort(() => Math.random() - 0.5);
+                
+                // 女→男の順で結合
+                shuffledList = [...females, ...males];
+            } else {
+                // ランダムモード（従来通り）
+                shuffledList = usersList.slice().sort(() => Math.random() - 0.5);
+            }
             
             // ユーザー情報をセッションストレージに保存
             sessionStorage.setItem('usersList', JSON.stringify(usersList));
@@ -730,6 +892,8 @@
             sessionStorage.setItem('votes', JSON.stringify({}));
             sessionStorage.setItem('selectedTheme', selectedTheme);
             sessionStorage.setItem('themeName', themes[selectedTheme] || '');
+            sessionStorage.setItem('votingMode', selectedMode);
+            sessionStorage.removeItem('maleOrderReorganized'); // 前回のフラグをリセット
             
             // confirm.htmlに遷移
             window.location.href = 'confirm.html';

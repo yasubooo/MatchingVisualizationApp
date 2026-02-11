@@ -119,6 +119,7 @@
     <script>
         let shuffledList = [];
         let currentIndex = 0;
+        let votingMode = 'random';
 
         // データを取得
         function loadData() {
@@ -131,11 +132,68 @@
             if (index !== null) {
                 currentIndex = parseInt(index);
             }
+
+            votingMode = sessionStorage.getItem('votingMode') || 'random';
+        }
+
+        function reorganizeMaleVotingOrder() {
+            // 女性の投票結果を取得
+            const votes = JSON.parse(sessionStorage.getItem('votes')) || {};
+            
+            // 女性と男性を分離
+            const females = shuffledList.filter(p => p.gender === 'female');
+            const males = shuffledList.filter(p => p.gender === 'male');
+            
+            // 各男性への得票数をカウント
+            const maleVotes = {};
+            males.forEach(male => {
+                maleVotes[male.id] = 0;
+            });
+            
+            // 女性の投票結果をカウント（votesの値はIDなので直接使用）
+            Object.values(votes).forEach(votedForId => {
+                if (maleVotes.hasOwnProperty(votedForId)) {
+                    maleVotes[votedForId]++;
+                }
+            });
+            
+            // 得票が被っているか判定（同じ男性に複数の女性投票があるか）
+            const hasMultipleVotesForSameMale = Object.values(maleVotes).some(count => count > 1);
+            
+            if (hasMultipleVotesForSameMale) {
+                // 得票が被っている：得票順に男性を並べ替え
+                males.sort((a, b) => (maleVotes[b.id] || 0) - (maleVotes[a.id] || 0));
+            } else {
+                // 得票が被っていない：男性をランダムに並べ替え
+                males.sort(() => Math.random() - 0.5);
+            }
+            
+            // shuffledListを更新
+            shuffledList = [...females, ...males];
+            sessionStorage.setItem('shuffledList', JSON.stringify(shuffledList));
+            sessionStorage.setItem('maleOrderReorganized', 'true'); // 再構成済みフラグを設定
         }
 
         function updateDisplay() {
             if (shuffledList.length === 0) return;
 
+            // 女性から男性への遷移時に男性の投票順を再決定（ジェンダーモード時のみ、1回だけ）
+            if (votingMode === 'gender' && currentIndex > 0 && !sessionStorage.getItem('maleOrderReorganized')) {
+                const previousPerson = shuffledList[currentIndex - 1];
+                const currentPerson = shuffledList[currentIndex];
+                
+                // 女性から男性への遷移を検出
+                if (previousPerson && previousPerson.gender === 'female' && currentPerson && currentPerson.gender === 'male') {
+                    reorganizeMaleVotingOrder();
+                    // 再構成後、shuffledListが変わった可能性があるため、sessionStorageから再取得
+                    const updated = sessionStorage.getItem('shuffledList');
+                    if (updated) {
+                        shuffledList = JSON.parse(updated);
+                    }
+                }
+            }
+
+            // 現在の人物情報を取得（reorganizeの後に取得することが重要）
             const current = shuffledList[currentIndex];
             const isMale = current.gender === 'male';
 
