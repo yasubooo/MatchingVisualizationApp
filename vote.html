@@ -120,10 +120,82 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
+
+        .vote-history {
+            display: none;
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #d4e9f7;
+        }
+
+        .vote-history.show {
+            display: block;
+        }
+
+        .vote-history-title {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-align: left;
+        }
+
+        .vote-history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .vote-history-item {
+            background: linear-gradient(135deg, #fff5f8 0%, #ffe4e1 100%);
+            padding: 10px 12px;
+            border-radius: 8px;
+            border-left: 3px solid #ff6b9d;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        .vote-history-item.male {
+            background: linear-gradient(135deg, #e8f4f8 0%, #d4e9f7 100%);
+            border-left-color: #4a90e2;
+        }
+
+        .vote-history-item .voter-name {
+            font-weight: bold;
+            color: #ff6b9d;
+            margin: 0;
+            display: inline;
+            margin-right: 5px;
+        }
+
+        .vote-history-item.male .voter-name {
+            color: #4a90e2;
+        }
+
+        .vote-history-item .arrow {
+            color: #999;
+            margin: 0 5px;
+        }
+
+        .vote-history-item .voted-name {
+            font-weight: bold;
+            color: #333;
+            display: inline;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="vote-history" id="voteHistory">
+            <div class="vote-history-title">これまでの投票結果</div>
+            <div class="vote-history-list" id="voteHistoryList">
+                <!-- 投票結果がここに表示される -->
+            </div>
+        </div>
+
         <div class="question">
             <span id="voterName" class="voter-name">〇〇</span>さんは<br>誰に投票しますか？
         </div>
@@ -186,11 +258,50 @@
             const voteBtn = document.getElementById('voteSubmitBtn');
             voteBtn.className = isMale ? 'vote-button male' : 'vote-button';
 
+            // 男性の投票画面の場合、これまでの投票結果を表示
+            if (isMale) {
+                renderVoteHistory();
+            }
+
             candidatesDiv.innerHTML = candidates.map((candidate, index) => `
                 <div class="candidate-card ${candidate.gender}" onclick="selectCandidate(${index})">
                     <div class="candidate-name">${candidate.name}さん</div>
                 </div>
             `).join('');
+        }
+
+        function renderVoteHistory() {
+            const votes = JSON.parse(sessionStorage.getItem('votes')) || {};
+            const voteHistoryDiv = document.getElementById('voteHistory');
+            const voteHistoryList = document.getElementById('voteHistoryList');
+
+            if (Object.keys(votes).length === 0) {
+                // 投票がまだない場合は非表示
+                voteHistoryDiv.classList.remove('show');
+                return;
+            }
+
+            voteHistoryDiv.classList.add('show');
+
+            // 投票結果を構築
+            const historyItems = Object.keys(votes).map(voterId => {
+                const voter = usersList.find(u => u.id == voterId);
+                const voted = usersList.find(u => u.id === votes[voterId]);
+                
+                if (voter && voted) {
+                    const itemClass = voter.gender === 'male' ? 'vote-history-item male' : 'vote-history-item';
+                    return `
+                        <div class="${itemClass}">
+                            <span class="voter-name">${voter.name}</span>
+                            <span class="arrow">→</span>
+                            <span class="voted-name">${voted.name}</span>
+                        </div>
+                    `;
+                }
+                return '';
+            }).join('');
+
+            voteHistoryList.innerHTML = historyItems;
         }
 
         function selectCandidate(index) {
