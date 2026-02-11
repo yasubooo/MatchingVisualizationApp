@@ -308,9 +308,9 @@
             const oppositeGender = currentVoter.gender === 'male' ? 'female' : 'male';
             const opposites = usersList.filter(user => user.gender === oppositeGender && user.id !== currentVoter.id);
 
-            // ランダムに2人選ぶ
+            // ランダムに並べ替えて全員返す
             const shuffled = opposites.sort(() => Math.random() - 0.5);
-            return shuffled.slice(0, 2);
+            return shuffled;
         }
 
         function renderCandidates() {
