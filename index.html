@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>今夜神回成立</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', 'Hiragino Sans', sans-serif;
+            background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 50%, #ffa07a 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ff6b9d;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 30px;
+            font-weight: normal;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ffe4e1;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #ff6b9d;
+            background-color: #fff5f8;
+        }
+
+        .gender-options {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 0;
+        }
+
+        input[type="radio"] {
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+            accent-color: #ff6b9d;
+        }
+
+        .button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+
+        .button:active {
+            transform: scale(0.98);
+            box-shadow: 0 5px 15px rgba(255, 107, 157, 0.3);
+        }
+
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            color: #ff6b9d;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .registered-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #ffe4e1;
+        }
+
+        .registered-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .registered-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .registered-item {
+            background: linear-gradient(135deg, #fff5f8 0%, #ffe4e1 100%);
+            padding: 12px 15px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #ff6b9d;
+        }
+
+        .registered-item.male {
+            background: linear-gradient(135deg, #e8f4f8 0%, #d4e9f7 100%);
+            border-left-color: #4a90e2;
+        }
+
+        .registered-item.female {
+            background: linear-gradient(135deg, #fff5f8 0%, #ffe4e1 100%);
+            border-left-color: #ff6b9d;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .user-gender {
+            font-size: 12px;
+            color: #ff6b9d;
+            background: white;
+            padding: 4px 10px;
+            border-radius: 5px;
+        }
+
+        .delete-btn {
+            background: #ffb3c1;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+
+        .delete-btn:active {
+            background: #ff8fab;
+            transform: scale(0.95);
+        }
+
+        .add-btn {
+            width: 100%;
+            padding: 12px;
+            background: #ffe4e1;
+            color: #ff6b9d;
+            border: 2px solid #ffb3c1;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 20px;
+        }
+
+        .add-btn:active {
+            background: #ffb3c1;
+            transform: scale(0.98);
+        }
+
+        .start-btn {
+            display: none;
+        }
+
+        .start-btn.active {
+            display: block;
+        }
+
+        .empty-message {
+            color: #999;
+            font-size: 14px;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">今夜神回成立</h1>
+        <p class="subtitle">運命の出会いを探そう！</p>
+
+        <form id="userForm" class="form-section">
+            <div class="form-group">
+                <label for="name">お名前</label>
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    placeholder="ニックネームでOK"
+                >
+                <div class="error-message" id="nameError">名前を入力してください</div>
+            </div>
+
+            <div class="form-group">
+                <label>性別</label>
+                <div class="gender-options">
+                    <label class="radio-label">
+                        <input type="radio" name="gender" value="male">
+                        男性
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="gender" value="female">
+                        女性
+                    </label>
+                </div>
+                <div class="error-message" id="genderError">性別を選択してください</div>
+            </div>
+
+            <button type="submit" class="button add-btn">追加</button>
+        </form>
+
+        <div class="registered-section">
+            <h2 class="registered-title">参加者一覧</h2>
+            <div id="registeredList" class="registered-list">
+                <div class="empty-message">参加者を追加してください</div>
+            </div>
+        </div>
+
+        <button id="startBtn" class="button start-btn">投票スタート</button>
+    </div>
+
+    <script>
+        let usersList = [];
+
+        const userForm = document.getElementById('userForm');
+        const nameInput = document.getElementById('name');
+        const nameError = document.getElementById('nameError');
+        const genderError = document.getElementById('genderError');
+        const registeredList = document.getElementById('registeredList');
+        const registeredTitle = document.querySelector('.registered-title');
+        const startBtn = document.getElementById('startBtn');
+
+        userForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // バリデーション
+            let isValid = true;
+
+            if (!nameInput.value.trim()) {
+                nameError.style.display = 'block';
+                isValid = false;
+            } else {
+                nameError.style.display = 'none';
+            }
+
+            const genderSelected = document.querySelector('input[name="gender"]:checked');
+            if (!genderSelected) {
+                genderError.style.display = 'block';
+                isValid = false;
+            } else {
+                genderError.style.display = 'none';
+            }
+
+            if (isValid) {
+                // ユーザー情報を追加
+                const userData = {
+                    id: Date.now(),
+                    name: nameInput.value.trim(),
+                    gender: genderSelected.value
+                };
+                
+                usersList.push(userData);
+
+                // 表示を更新
+                updateLists();
+
+                // フォームをリセット
+                userForm.reset();
+                nameInput.focus();
+            }
+        });
+
+        function updateLists() {
+            if (usersList.length === 0) {
+                registeredList.innerHTML = '<div class="empty-message">参加者を追加してください</div>';
+                registeredTitle.style.display = 'none';
+                startBtn.classList.remove('active');
+            } else {
+                registeredList.innerHTML = usersList.map(user => `
+                    <div class="registered-item ${user.gender}">
+                        <div class="user-info">
+                            <span class="user-name">${user.name}</span>
+                            <span class="user-gender">${user.gender === 'male' ? '男性' : '女性'}</span>
+                        </div>
+                        <button type="button" class="delete-btn" onclick="deleteUser(${user.id})">削除</button>
+                    </div>
+                `).join('');
+                registeredTitle.style.display = 'block';
+                startBtn.classList.add('active');
+            }
+        }
+
+        function deleteUser(id) {
+            usersList = usersList.filter(user => user.id !== id);
+            updateLists();
+        }
+
+        // 名前入力時にエラーメッセージをクリア
+        nameInput.addEventListener('input', function() {
+            if (this.value.trim()) {
+                nameError.style.display = 'none';
+            }
+        });
+
+        // スタートボタン
+        startBtn.addEventListener('click', function() {
+            // シャッフルして順番をランダムに
+            const shuffledList = usersList.sort(() => Math.random() - 0.5);
+            
+            // ユーザー情報をセッションストレージに保存
+            sessionStorage.setItem('usersList', JSON.stringify(usersList));
+            sessionStorage.setItem('shuffledList', JSON.stringify(shuffledList));
+            sessionStorage.setItem('currentIndex', '0');
+            sessionStorage.setItem('votes', JSON.stringify({}));
+            
+            // confirm.htmlに遷移
+            window.location.href = 'confirm.html';
+        });
+    </script>
+</body>
+</html>

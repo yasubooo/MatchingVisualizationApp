@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>投票確認 - 今夜神回成立</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', 'Hiragino Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: background 0.3s;
+        }
+
+        body.male-mode {
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 50%, #2a5da6 100%);
+        }
+
+        body.female-mode {
+            background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 50%, #ffa07a 100%);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .progress {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 20px;
+        }
+
+        .confirmation-text {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .person-number {
+            font-weight: bold;
+            color: #ff6b9d;
+        }
+
+        .person-number.male {
+            color: #4a90e2;
+        }
+
+        .person-name {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ff6b9d;
+            margin: 15px 0;
+        }
+
+        .person-name.male {
+            color: #4a90e2;
+        }
+
+        .person-gender {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 30px;
+        }
+
+        .vote-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .vote-btn.male {
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+        }
+
+        .vote-btn:active {
+            transform: scale(0.98);
+            box-shadow: 0 5px 15px rgba(255, 107, 157, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="confirmation-text">
+            <span class="person-number" id="personNumber">1</span>人目は
+        </div>
+        
+        <div class="person-name" id="personName">〇〇</div>さん
+
+        <div class="confirmation-text">
+            です。<br>間違いありませんか？
+        </div>
+
+        <button class="vote-btn" id="voteBtn">投票する</button>
+    </div>
+
+    <script>
+        let shuffledList = [];
+        let currentIndex = 0;
+
+        // データを取得
+        function loadData() {
+            const stored = sessionStorage.getItem('shuffledList');
+            if (stored) {
+                shuffledList = JSON.parse(stored);
+            }
+            
+            const index = sessionStorage.getItem('currentIndex');
+            if (index !== null) {
+                currentIndex = parseInt(index);
+            }
+        }
+
+        function updateDisplay() {
+            if (shuffledList.length === 0) return;
+
+            const current = shuffledList[currentIndex];
+            const isMale = current.gender === 'male';
+
+            // 背景色を変更
+            document.body.className = isMale ? 'male-mode' : 'female-mode';
+
+            // 人物情報を表示
+            document.getElementById('personNumber').textContent = currentIndex + 1;
+            document.getElementById('personNumber').className = isMale ? 'person-number male' : 'person-number';
+            document.getElementById('personName').textContent = current.name;
+            document.getElementById('personName').className = isMale ? 'person-name male' : 'person-name';
+
+            // 投票ボタンの色を変更
+            const voteBtn = document.getElementById('voteBtn');
+            voteBtn.className = isMale ? 'vote-btn male' : 'vote-btn';
+        }
+
+        document.getElementById('voteBtn').addEventListener('click', function() {
+            const current = shuffledList[currentIndex];
+            
+            // 投票情報をセッションストレージに保存
+            sessionStorage.setItem('currentVotingFor', JSON.stringify(current));
+            
+            // 投票画面に遷移（次で実装）
+            window.location.href = 'vote.html';
+        });
+
+        // 初期化
+        loadData();
+        updateDisplay();
+    </script>
+</body>
+</html>

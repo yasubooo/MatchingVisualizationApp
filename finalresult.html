@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>結果発表 - 今夜神回成立</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', 'Hiragino Sans', sans-serif;
+            background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 50%, #ffa07a 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ff6b9d;
+            margin-bottom: 20px;
+        }
+
+        .hearts-section {
+            margin-bottom: 30px;
+        }
+
+        .hearts-display {
+            font-size: 60px;
+            margin: 20px 0;
+            min-height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .match-count {
+            font-size: 32px;
+            font-weight: bold;
+            color: #ff6b9d;
+            margin-bottom: 10px;
+        }
+
+        .message {
+            font-size: 16px;
+            color: #333;
+            line-height: 2;
+            margin-bottom: 30px;
+        }
+
+        .button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .button:active {
+            transform: scale(0.98);
+            box-shadow: 0 5px 15px rgba(255, 107, 157, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">結果発表🎉</h1>
+
+        <div class="hearts-section">
+            <div class="match-count" id="matchCount">0組</div>
+            <div class="hearts-display" id="heartsDisplay"></div>
+        </div>
+
+        <div class="message" id="message">
+            <!-- メッセージがここに表示される -->
+        </div>
+
+        <button class="button" onclick="goBack()">初めに戻る</button>
+    </div>
+
+    <script>
+        function calculateMatches() {
+            const votes = JSON.parse(sessionStorage.getItem('votes') || '{}');
+            const usersList = JSON.parse(sessionStorage.getItem('usersList') || '[]');
+
+            const matches = [];
+            const counted = new Set();
+
+            // 投票情報から相互投票をチェック
+            for (const [voterId, voteeId] of Object.entries(votes)) {
+                const voterIdNum = parseInt(voterId);
+                const voteeIdNum = parseInt(voteeId);
+
+                // すでにカウント済みならスキップ
+                if (counted.has(voterIdNum) || counted.has(voteeIdNum)) continue;
+
+                // 相互投票をチェック
+                const reversedVote = votes[voteeIdNum];
+                if (reversedVote && parseInt(reversedVote) === voterIdNum) {
+                    matches.push({ id1: voterIdNum, id2: voteeIdNum });
+                    counted.add(voterIdNum);
+                    counted.add(voteeIdNum);
+                }
+            }
+
+            return matches;
+        }
+
+        function isAllMatched(matches) {
+            const usersList = JSON.parse(sessionStorage.getItem('usersList') || '[]');
+            
+            // 男性と女性の人数を数える
+            const maleCount = usersList.filter(u => u.gender === 'male').length;
+            const femaleCount = usersList.filter(u => u.gender === 'female').length;
+            
+            // 少ないほうの人数
+            const minCount = Math.min(maleCount, femaleCount);
+            
+            // マッチ数が少ないほうの人数と等しい場合、全員マッチ
+            return matches.length === minCount && minCount > 0;
+        }
+
+        function generateMessage(matchCount) {
+            if (matchCount === 0) {
+                return '0組です😭<br>運命ではありませんでした😭';
+            }
+
+            const matches = calculateMatches();
+            if (isAllMatched(matches)) {
+                return `${matchCount}組マッチしました！！<br>神回です！！<br>運命ですね！！！`;
+            } else {
+                return `${matchCount}組マッチしました！！<br>おめでとうございます！！`;
+            }
+        }
+
+        function renderHearts(count) {
+            const heartsDisplay = document.getElementById('heartsDisplay');
+            let heartsHTML = '';
+            for (let i = 0; i < count; i++) {
+                heartsHTML += '❤️';
+            }
+            heartsDisplay.innerHTML = heartsHTML || '(マッチなし)';
+        }
+
+        function displayResults() {
+            const matches = calculateMatches();
+            const matchCount = matches.length;
+
+            // ハート数を表示
+            document.getElementById('matchCount').textContent = `${matchCount}組`;
+            renderHearts(matchCount);
+
+            // メッセージを表示
+            document.getElementById('message').innerHTML = generateMessage(matchCount);
+        }
+
+        function goBack() {
+            // セッションストレージをクリア
+            sessionStorage.clear();
+            // 初期画面に戻る
+            window.location.href = 'index.html';
+        }
+
+        // 初期化
+        displayResults();
+    </script>
+</body>
+</html>

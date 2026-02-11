@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>投票 - 今夜神回成立</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', 'Hiragino Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: background 0.3s;
+        }
+
+        body.male-mode {
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 50%, #2a5da6 100%);
+        }
+
+        body.female-mode {
+            background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 50%, #ffa07a 100%);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .question {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .voter-name {
+            font-size: 18px;
+            color: #ff6b9d;
+            margin-bottom: 30px;
+        }
+
+        .voter-name.male {
+            color: #4a90e2;
+        }
+
+        .candidates {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .candidate-card {
+            padding: 20px;
+            border: 2px solid #ffe4e1;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .candidate-card.male {
+            border-color: #d4e9f7;
+        }
+
+        .candidate-card.selected {
+            background: linear-gradient(135deg, #fff5f8 0%, #ffe4e1 100%);
+            border-color: #ff6b9d;
+            border-width: 3px;
+            transform: scale(1.05);
+        }
+
+        .candidate-card.selected.male {
+            background: linear-gradient(135deg, #e8f4f8 0%, #d4e9f7 100%);
+            border-color: #4a90e2;
+        }
+
+        .candidate-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .vote-button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .vote-button.male {
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+        }
+
+        .vote-button:active {
+            transform: scale(0.98);
+            box-shadow: 0 5px 15px rgba(255, 107, 157, 0.3);
+        }
+
+        .vote-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="question">
+            <span id="voterName" class="voter-name">〇〇</span>さんは<br>誰に投票しますか？
+        </div>
+
+        <div class="candidates" id="candidates">
+            <!-- 候補者がここに表示される -->
+        </div>
+
+        <button class="vote-button" id="voteSubmitBtn" disabled>この人に投票する</button>
+    </div>
+
+    <script>
+        let currentVoter = null;
+        let candidates = [];
+        let selectedCandidate = null;
+        let usersList = [];
+        let shuffledList = [];
+        let currentIndex = 0;
+
+        function loadData() {
+            const voterData = sessionStorage.getItem('currentVotingFor');
+            if (voterData) {
+                currentVoter = JSON.parse(voterData);
+            }
+
+            const users = sessionStorage.getItem('usersList');
+            if (users) {
+                usersList = JSON.parse(users);
+            }
+
+            const shuffled = sessionStorage.getItem('shuffledList');
+            if (shuffled) {
+                shuffledList = JSON.parse(shuffled);
+            }
+
+            const index = sessionStorage.getItem('currentIndex');
+            if (index !== null) {
+                currentIndex = parseInt(index);
+            }
+        }
+
+        function getCandidates() {
+            // 投票者と異性の候補者を取得
+            const oppositeGender = currentVoter.gender === 'male' ? 'female' : 'male';
+            const opposites = usersList.filter(user => user.gender === oppositeGender && user.id !== currentVoter.id);
+
+            // ランダムに2人選ぶ
+            const shuffled = opposites.sort(() => Math.random() - 0.5);
+            return shuffled.slice(0, 2);
+        }
+
+        function renderCandidates() {
+            const isMale = currentVoter.gender === 'male';
+            const candidatesDiv = document.getElementById('candidates');
+
+            document.body.className = isMale ? 'male-mode' : 'female-mode';
+            document.getElementById('voterName').textContent = currentVoter.name;
+            document.getElementById('voterName').className = isMale ? 'voter-name male' : 'voter-name';
+
+            const voteBtn = document.getElementById('voteSubmitBtn');
+            voteBtn.className = isMale ? 'vote-button male' : 'vote-button';
+
+            candidatesDiv.innerHTML = candidates.map((candidate, index) => `
+                <div class="candidate-card ${candidate.gender}" onclick="selectCandidate(${index})">
+                    <div class="candidate-name">${candidate.name}さん</div>
+                </div>
+            `).join('');
+        }
+
+        function selectCandidate(index) {
+            selectedCandidate = candidates[index];
+            
+            // 選択状態を更新
+            const cards = document.querySelectorAll('.candidate-card');
+            cards.forEach((card, i) => {
+                if (i === index) {
+                    card.classList.add('selected');
+                } else {
+                    card.classList.remove('selected');
+                }
+            });
+
+            // 投票ボタンを有効化
+            document.getElementById('voteSubmitBtn').disabled = false;
+        }
+
+        document.getElementById('voteSubmitBtn').addEventListener('click', function() {
+            if (!selectedCandidate) return;
+
+            // 投票情報をセッションストレージに記録
+            let votes = sessionStorage.getItem('votes');
+            if (votes) {
+                votes = JSON.parse(votes);
+            } else {
+                votes = {};
+            }
+
+            votes[currentVoter.id] = selectedCandidate.id;
+            sessionStorage.setItem('votes', JSON.stringify(votes));
+
+            // 次の人がいるかチェック
+            if (currentIndex + 1 < shuffledList.length) {
+                currentIndex++;
+                sessionStorage.setItem('currentIndex', currentIndex.toString());
+                const nextPerson = shuffledList[currentIndex];
+                sessionStorage.setItem('currentVotingFor', JSON.stringify(nextPerson));
+                window.location.href = 'confirm.html';
+            } else {
+                // 全員の投票が完了
+                window.location.href = 'result.html';
+            }
+        });
+
+        // 初期化
+        loadData();
+        candidates = getCandidates();
+        renderCandidates();
+    </script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>投票完了 - 今夜神回成立</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', 'Hiragino Sans', sans-serif;
+            background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 50%, #ffa07a 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff6b9d;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+
+        .icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+
+        .button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .button:active {
+            transform: scale(0.98);
+            box-shadow: 0 5px 15px rgba(255, 107, 157, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">💓</div>
+        <h1 class="title">投票完了！</h1>
+        
+        <div class="message">
+            全員の投票が終わりました。<br>
+            結果を確認しましょう！
+        </div>
+
+        <button class="button" onclick="goToResult()">結果を確認する</button>
+    </div>
+
+    <script>
+        function goToResult() {
+            // 結果画面に遷移
+            window.location.href = 'finalresult.html';
+        }
+    </script>
+</body>
+</html>
