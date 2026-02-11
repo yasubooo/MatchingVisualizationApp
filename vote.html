@@ -122,14 +122,35 @@
         }
 
         .vote-history {
-            display: none;
+            display: block;
             margin-bottom: 30px;
             padding-bottom: 30px;
             border-bottom: 2px solid #d4e9f7;
         }
 
-        .vote-history.show {
-            display: block;
+        .vote-history.hidden-mode {
+            display: none !important;
+        }
+
+        .vote-history-toggle-btn {
+            display: inline-block;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px;
+            transition: transform 0.2s;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .vote-history-toggle-btn:active {
+            transform: scale(1.2);
+        }
+
+        .container {
+            position: relative;
         }
 
         .vote-history-title {
@@ -233,7 +254,8 @@
 </head>
 <body>
     <div class="container">
-        <div class="vote-history" id="voteHistory">
+        <button type="button" class="vote-history-toggle-btn" id="voteHistoryToggleBtn" title="投票結果を表示">❤️</button>
+        <div class="vote-history hidden-mode" id="voteHistory">
             <div class="vote-history-title">これまでの投票結果</div>
             <div class="vote-history-list" id="voteHistoryList">
                 <!-- 投票結果がここに表示される -->
@@ -302,10 +324,9 @@
             const voteBtn = document.getElementById('voteSubmitBtn');
             voteBtn.className = isMale ? 'vote-button male' : 'vote-button';
 
-            // 男性の投票画面の場合、これまでの投票結果を表示
-            if (isMale) {
-                renderVoteHistory();
-            }
+            // ハートボタンの表示制御（男性のみ表示）
+            const voteHistoryToggleBtn = document.getElementById('voteHistoryToggleBtn');
+            voteHistoryToggleBtn.style.display = isMale ? 'inline-block' : 'none';
 
             candidatesDiv.innerHTML = candidates.map((candidate, index) => `
                 <div class="candidate-card ${candidate.gender}" onclick="selectCandidate(${index})">
@@ -321,11 +342,8 @@
 
             if (Object.keys(votes).length === 0) {
                 // 投票がまだない場合は非表示
-                voteHistoryDiv.classList.remove('show');
                 return;
             }
-
-            voteHistoryDiv.classList.add('show');
 
             // マッチング判定関数
             function isMatched(voterId, votedForId) {
@@ -348,13 +366,13 @@
                     // 自分に投票している人かチェック（男性の投票画面での場合）
                     const isVotedForMe = currentVoter && voted.id === currentVoter.id;
                     const votedForMeClass = isVotedForMe ? ' voted-for-me' : '';
-                    const star = isVotedForMe ? '<span class="star">⭐</span><span class="starred-label">あなたに投票!</span>' : '';
+                    const heart2 = isVotedForMe ? '<span class="star">⭐</span><span class="starred-label">あなたに投票!</span>' : '';
                     
                     return `
                         <div class="${itemClass}${matchedClass}${votedForMeClass}">
                             <span class="voter-name">${voter.name}</span>
                             <span class="arrow">→</span>
-                            <span class="voted-name">${voted.name}</span>${heart}${star}
+                            <span class="voted-name">${voted.name}</span>${heart}${heart2}
                         </div>
                     `;
                 }
@@ -412,6 +430,18 @@
         loadData();
         candidates = getCandidates();
         renderCandidates();
+
+        // 投票履歴表示トグルボタン
+        const voteHistoryToggleBtn = document.getElementById('voteHistoryToggleBtn');
+        const voteHistory = document.getElementById('voteHistory');
+
+        voteHistoryToggleBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            voteHistory.classList.toggle('hidden-mode');
+            if (!voteHistory.classList.contains('hidden-mode')) {
+                renderVoteHistory();
+            }
+        });
     </script>
 </body>
 </html>
