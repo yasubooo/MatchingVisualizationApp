@@ -185,6 +185,50 @@
             color: #333;
             display: inline;
         }
+
+        .vote-history-item.matched {
+            box-shadow: 0 0 10px rgba(255, 107, 157, 0.4);
+        }
+
+        .vote-history-item.matched.male {
+            box-shadow: 0 0 10px rgba(74, 144, 226, 0.4);
+        }
+
+        .vote-history-item .heart {
+            color: #ff6b9d;
+            margin-left: 8px;
+            font-size: 14px;
+        }
+
+        .vote-history-item.male .heart {
+            color: #4a90e2;
+        }
+
+        .vote-history-item.voted-for-me {
+            background: linear-gradient(135deg, #fff9e6 0%, #fff0d9 100%);
+            border-left-color: #ffa500;
+            box-shadow: 0 0 10px rgba(255, 165, 0, 0.3);
+        }
+
+        .vote-history-item.voted-for-me .voter-name {
+            color: #ff8c00;
+        }
+
+        .vote-history-item .star {
+            color: #ffa500;
+            margin-left: 8px;
+            font-size: 14px;
+        }
+
+        .vote-history-item.voted-for-me .starred-label {
+            color: #ff8c00;
+            font-size: 11px;
+            background: #fff;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-left: 5px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -283,6 +327,13 @@
 
             voteHistoryDiv.classList.add('show');
 
+            // マッチング判定関数
+            function isMatched(voterId, votedForId) {
+                // votedForIdがvoterIdに投票しているか判定
+                // voterId は文字列、votes[votedForId] は数値なので == を使用
+                return votes[votedForId] == voterId;
+            }
+
             // 投票結果を構築
             const historyItems = Object.keys(votes).map(voterId => {
                 const voter = usersList.find(u => u.id == voterId);
@@ -290,11 +341,20 @@
                 
                 if (voter && voted) {
                     const itemClass = voter.gender === 'male' ? 'vote-history-item male' : 'vote-history-item';
+                    const matched = isMatched(voterId, votes[voterId]);
+                    const matchedClass = matched ? ' matched' : '';
+                    const heart = matched ? '<span class="heart">❤️</span>' : '';
+                    
+                    // 自分に投票している人かチェック（男性の投票画面での場合）
+                    const isVotedForMe = currentVoter && voted.id === currentVoter.id;
+                    const votedForMeClass = isVotedForMe ? ' voted-for-me' : '';
+                    const star = isVotedForMe ? '<span class="star">⭐</span><span class="starred-label">あなたに投票!</span>' : '';
+                    
                     return `
-                        <div class="${itemClass}">
+                        <div class="${itemClass}${matchedClass}${votedForMeClass}">
                             <span class="voter-name">${voter.name}</span>
                             <span class="arrow">→</span>
-                            <span class="voted-name">${voted.name}</span>
+                            <span class="voted-name">${voted.name}</span>${heart}${star}
                         </div>
                     `;
                 }
