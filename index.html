@@ -100,6 +100,25 @@
             accent-color: #ff6b9d;
         }
 
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ffe4e1;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            background-color: white;
+            cursor: pointer;
+            color: #333;
+            display: none;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #ff6b9d;
+            background-color: #fff5f8;
+        }
+
         .button {
             width: 100%;
             padding: 14px;
@@ -238,14 +257,209 @@
             text-align: center;
             padding: 20px;
         }
+
+        .theme-selector-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .theme-input-group {
+            flex: 1;
+        }
+
+        .theme-display {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ffe4e1;
+            border-radius: 10px;
+            font-size: 16px;
+            background-color: white;
+            color: #333;
+            text-align: center;
+            font-weight: bold;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .theme-display.spinning {
+            animation: spinTheme 0.1s infinite;
+        }
+
+        @keyframes spinTheme {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .random-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #ffa07a 0%, #ff8fab 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            min-width: 100px;
+        }
+
+        .random-btn:active {
+            transform: scale(0.98);
+            box-shadow: 0 5px 15px rgba(255, 160, 122, 0.3);
+        }
+
+        .random-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .select-display-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .theme-display-text {
+            transition: all 0.3s ease;
+        }
+
+        .theme-options {
+            display: none;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .theme-options.show {
+            display: grid;
+        }
+
+        .theme-option-btn {
+            padding: 10px 8px;
+            background: #f0f0f0;
+            color: #333;
+            border: 2px solid #ffe4e1;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            white-space: normal;
+            line-height: 1.3;
+        }
+
+        .theme-option-btn:active {
+            background: #ff6b9d;
+            color: white;
+            border-color: #ff6b9d;
+            transform: scale(0.95);
+        }
+
+        .theme-option-btn.selected {
+            background: #ff6b9d;
+            color: white;
+            border-color: #ff6b9d;
+        }
+
+        .toggle-options-btn {
+            width: 100%;
+            padding: 8px;
+            background: #f5f5f5;
+            color: #333;
+            border: 2px solid #ffe4e1;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+
+        .toggle-options-btn:active {
+            background: #ffe4e1;
+            transform: scale(0.95);
+        }
+
+        .theme-toggle-btn {
+            display: inline-block;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px;
+            margin-left: 8px;
+            transition: transform 0.2s;
+        }
+
+        .theme-toggle-btn:active {
+            transform: scale(1.2);
+        }
+
+        .theme-form-group {
+            display: none;
+        }
+
+        .theme-form-group.show {
+            display: block;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1 class="title">今夜神回成立</h1>
-        <p class="subtitle">運命の出会いを探そう！</p>
+        <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 30px;">
+            <p class="subtitle" style="margin-bottom: 0;">運命の出会いを探そう！</p>
+            <button type="button" class="theme-toggle-btn" id="themeToggleBtn" title="テーマ選択を開く">🎨</button>
+        </div>
 
         <form id="userForm" class="form-section">
+            <div class="form-group theme-form-group" id="themeFormGroup">
+                <label>テーマを選択</label>
+                <div class="select-display-row">
+                    <div class="theme-input-group">
+                        <div class="theme-display" id="themeDisplay">
+                            <span class="theme-display-text">テーマを選んでね</span>
+                        </div>
+                        <button type="button" class="toggle-options-btn" id="toggleOptionsBtn">▼ 選択肢から選ぶ</button>
+                        <div class="theme-options" id="themeOptions">
+                            <button type="button" class="theme-option-btn" data-theme="theme1">今好印象なのは</button>
+                            <button type="button" class="theme-option-btn" data-theme="theme2">第一印象</button>
+                            <button type="button" class="theme-option-btn" data-theme="theme3">彼氏・彼女にするなら</button>
+                            <button type="button" class="theme-option-btn" data-theme="theme4">結婚するなら</button>
+                            <button type="button" class="theme-option-btn" data-theme="theme5">一緒に無人島にいくなら</button>
+                            <button type="button" class="theme-option-btn" data-theme="theme6">今夜ワンチャンあるなら</button>
+                            <button type="button" class="theme-option-btn" data-theme="theme7">一番キスうまそう</button>
+                        </div>
+                    </div>
+                    <button type="button" class="random-btn" id="randomBtn">🎰 ランダム</button>
+                </div>
+                <select id="theme" name="theme">
+                    <option value="">テーマを選択してください</option>
+                    <option value="theme1">今好印象なのは</option>
+                    <option value="theme2">第一印象</option>
+                    <option value="theme3">彼氏・彼女にするなら</option>
+                    <option value="theme4">結婚するなら</option>
+                    <option value="theme5">一緒に無人島にいくなら</option>
+                    <option value="theme6">今夜ワンチャンあるなら</option>
+                    <option value="theme7">一番キスうまそう</option>
+                </select>
+                <div class="error-message" id="themeError">テーマを選択してください</div>
+            </div>
+
             <div class="form-group">
                 <label for="name">お名前</label>
                 <input 
@@ -287,14 +501,145 @@
 
     <script>
         let usersList = [];
+        let selectedTheme = '';
+        let isSpinning = false;
 
         const userForm = document.getElementById('userForm');
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        const themeFormGroup = document.getElementById('themeFormGroup');
+        const themeSelect = document.getElementById('theme');
+        const themeDisplay = document.getElementById('themeDisplay');
+        const randomBtn = document.getElementById('randomBtn');
+        const toggleOptionsBtn = document.getElementById('toggleOptionsBtn');
+        const themeOptions = document.getElementById('themeOptions');
+        const themeOptionBtns = document.querySelectorAll('.theme-option-btn');
         const nameInput = document.getElementById('name');
         const nameError = document.getElementById('nameError');
         const genderError = document.getElementById('genderError');
+        const themeError = document.getElementById('themeError');
         const registeredList = document.getElementById('registeredList');
         const registeredTitle = document.querySelector('.registered-title');
         const startBtn = document.getElementById('startBtn');
+
+        const themes = {
+            'theme1': '今好印象なのは',
+            'theme2': '第一印象',
+            'theme3': '彼氏・彼女にするなら',
+            'theme4': '結婚するなら',
+            'theme5': '一緒に無人島にいくなら',
+            'theme6': '今夜ワンチャンあるなら',
+            'theme7': '一番キスうまそう'
+        };
+
+        const themeKeys = Object.keys(themes);
+
+        // テーマトグルボタン（隠しコマンド）
+        themeToggleBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            themeFormGroup.classList.toggle('show');
+        });
+
+        // 選択肢トグルボタン
+        toggleOptionsBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            themeOptions.classList.toggle('show');
+            toggleOptionsBtn.textContent = themeOptions.classList.contains('show') ? '▲ 選択肢を閉じる' : '▼ 選択肢から選ぶ';
+        });
+
+        // テーマオプションボタン
+        themeOptionBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const themeKey = this.getAttribute('data-theme');
+                selectedTheme = themeKey;
+                themeSelect.value = themeKey;
+                
+                updateThemeDisplay();
+                updateThemeOptionButtons();
+                
+                // 選択肢を閉じる
+                themeOptions.classList.remove('show');
+                toggleOptionsBtn.textContent = '▼ 選択肢から選ぶ';
+                themeError.style.display = 'none';
+            });
+        });
+
+        function updateThemeOptionButtons() {
+            themeOptionBtns.forEach(btn => {
+                const themeKey = btn.getAttribute('data-theme');
+                if (themeKey === selectedTheme) {
+                    btn.classList.add('selected');
+                } else {
+                    btn.classList.remove('selected');
+                }
+            });
+        }
+
+        // テーマセレクトボックス変更時
+        themeSelect.addEventListener('change', function() {
+            if (this.value) {
+                selectedTheme = this.value;
+                themeError.style.display = 'none';
+                updateThemeDisplay();
+                updateThemeOptionButtons();
+            }
+        });
+
+        // ランダムボタン
+        randomBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (!isSpinning) {
+                spinTheme();
+            }
+        });
+
+        function spinTheme() {
+            isSpinning = true;
+            randomBtn.disabled = true;
+            themeDisplay.classList.add('spinning');
+
+            const spinDuration = 2000; // 2秒間スピン
+            const spinInterval = 100; // 100msごとに表示を更新
+            const spinCount = spinDuration / spinInterval;
+            let currentSpin = 0;
+
+            const spinTimer = setInterval(() => {
+                // ランダムにテーマを表示
+                const randomIndex = Math.floor(Math.random() * themeKeys.length);
+                const randomThemeKey = themeKeys[randomIndex];
+                themeDisplay.querySelector('.theme-display-text').textContent = themes[randomThemeKey];
+
+                currentSpin++;
+
+                if (currentSpin >= spinCount) {
+                    clearInterval(spinTimer);
+                    
+                    // 最終的なランダムテーマを決定
+                    const finalIndex = Math.floor(Math.random() * themeKeys.length);
+                    const finalTheme = themeKeys[finalIndex];
+                    
+                    selectedTheme = finalTheme;
+                    themeSelect.value = finalTheme;
+                    
+                    themeDisplay.classList.remove('spinning');
+                    updateThemeDisplay();
+                    updateThemeOptionButtons();
+                    
+                    // 選択肢を閉じる
+                    themeOptions.classList.remove('show');
+                    toggleOptionsBtn.textContent = '▼ 選択肢から選ぶ';
+                    
+                    isSpinning = false;
+                    randomBtn.disabled = false;
+                    themeError.style.display = 'none';
+                }
+            }, spinInterval);
+        }
+
+        function updateThemeDisplay() {
+            const themeText = themes[selectedTheme];
+            themeDisplay.querySelector('.theme-display-text').textContent = themeText;
+        }
 
         userForm.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -332,6 +677,11 @@
 
                 // フォームをリセット
                 userForm.reset();
+                selectedTheme = '';
+                updateThemeOptionButtons();
+                themeOptions.classList.remove('show');
+                toggleOptionsBtn.textContent = '▼ 選択肢から選ぶ';
+                themeDisplay.querySelector('.theme-display-text').textContent = 'テーマを選んでね';
                 nameInput.focus();
             }
         });
@@ -378,6 +728,8 @@
             sessionStorage.setItem('shuffledList', JSON.stringify(shuffledList));
             sessionStorage.setItem('currentIndex', '0');
             sessionStorage.setItem('votes', JSON.stringify({}));
+            sessionStorage.setItem('selectedTheme', selectedTheme);
+            sessionStorage.setItem('themeName', themes[selectedTheme] || '');
             
             // confirm.htmlに遷移
             window.location.href = 'confirm.html';
